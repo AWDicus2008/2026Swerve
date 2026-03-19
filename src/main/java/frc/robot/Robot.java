@@ -10,6 +10,11 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Ports;
+import frc.robot.subsystems.Hood;
 //import edu.wpi.first.wpilibj.XboxController;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -34,16 +39,20 @@ public class Robot extends TimedRobot {
     private TalonFX m_shooterRight = new TalonFX(17);
     private TalonFX m_shooterFeeder = new TalonFX(18);
 
-    private TalonFX m_climber = new TalonFX(19);
+    
 
-    private TalonFX m_intakeArm = new TalonFX(20);
-    private TalonFX m_intakeWheels = new TalonFX(21);
+    private TalonFX m_climber = new TalonFX(21);
+
+    private TalonFX m_intakeArm = new TalonFX(22);
+    private TalonFX m_intakeWheels = new TalonFX(23);
+
+    
 
     //Motor Config vars
     //private TalonFXConfiguration c_shooterLeft = new TalonFXConfiguration();
     private TalonFXConfiguration c_shooterCenter = new TalonFXConfiguration();
     //private TalonFXConfiguration c_shooterRight = new TalonFXConfiguration();
-    //private TalonFXConfiguration c_shooterFeeder = new TalonFXConfiguration();
+    //private TalonFXConfiguration c_shooterFeeder = new Talo   nFXConfiguration();
 
     //private TalonFXConfiguration c_climber = new TalonFXConfiguration();
 
@@ -52,10 +61,17 @@ public class Robot extends TimedRobot {
 
     //Controller
     private XboxController m_operator;
+    private POVButton dpadUp = new POVButton(m_operator, 0);
+    private POVButton dpadDown = new POVButton(m_operator, 180);
+    //On dpad, 0 is up, 90 is right, 180 is down, 270 is left
+    //Essentially Uses degrees and clockwise from top
+    //Left/Right in RobotContainer.java for command based
+    //Hood has to be command based to work with Hood.java
 
-    //Multipliers
+    //Multipliers to change vars for adjustable shooting
     private double shootMult = 0.70;
     private double intakeMult = 0.70;
+    public double hoodMult = 0.50;
     private double armMult = 0.60;
     private double climbMult = 0.70;
 
@@ -118,6 +134,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+        //Shooting commands
         if(m_operator.getRightTriggerAxis() > 0.2)
         {//Shoot
             m_shooterCenter.set(shootMult * m_operator.getRightTriggerAxis());
@@ -139,7 +156,20 @@ public class Robot extends TimedRobot {
         {//Prevent infinite intake
             m_intakeWheels.set(0);
         }
+        //Mult changing (shot height)
+        if(dpadUp.getAsBoolean() && shootMult > 0.85)
+        {//Shoot higher
+            shootMult += 0.05;
+        }
+        else if(dpadDown.getAsBoolean() && shootMult < 0.70)
+        {//Shoot lower
+            shootMult -= 0.05;
+        }
+        //Linear Actuator changing (shot distance)
+        //HAS to be command based or doesn't work with Hood class
 
+
+        //Arm commands
         if(m_operator.getXButton())
         {//Lower intake arm
             m_intakeArm.set(armMult);
@@ -153,6 +183,8 @@ public class Robot extends TimedRobot {
             m_intakeArm.set(0);
         }
 
+
+        //Climber Commands
         if(m_operator.getYButton())
         {
             m_climber.set(climbMult);
