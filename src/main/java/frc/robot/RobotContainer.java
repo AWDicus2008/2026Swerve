@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -32,6 +33,7 @@ public class RobotContainer {
     private final Hood m_actuator = new Hood();
 
     //Code for moving the hood
+    /*
     private void configureButtonBindings() {
         // D-pad UP to extend
         new POVButton(m_driverController, 0)
@@ -41,6 +43,7 @@ public class RobotContainer {
         new POVButton(m_driverController, 180)
             .onTrue(new MoveLinActs(m_actuator, false));
     }
+    */
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
